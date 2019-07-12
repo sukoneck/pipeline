@@ -8,6 +8,6 @@ COPY html /usr/share/nginx/html
 
 #CMD ["./wrapper.sh"]
 
-#<THIS ONE WORKS> CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
 
-RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
+#RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
