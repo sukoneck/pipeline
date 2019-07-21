@@ -1,8 +1,4 @@
 # HTML
-- task: Docker@2
-  inputs:
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
 
 trigger:
 - master
@@ -11,8 +7,15 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: ArchiveFiles@2
+- task: Docker@2
   inputs:
-    rootFolderOrFile: '$(build.sourcesDirectory)'
-    includeRootFolder: false
+    containerRegistry: 'sukoneck docker hub connection'
+    repository: 'sukoneck/staticsite'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: 'adobuildtest'
 - task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
