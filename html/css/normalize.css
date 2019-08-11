@@ -84,7 +84,7 @@ template {
 
 /**
  * Remove the gray background color from active links in IE 10.
- 
+ */
 
 a {
   background-color: transparent;
@@ -92,14 +92,16 @@ a {
 
 /**
  * Improve readability when focused and also mouse hovered in all browsers.
- 
+ */
 
 a:active,
 a:hover {
   outline: 0;
+  background-color: AliceBlue;
+  text-decoration-line: none;
 }
 
- Text-level semantics
+/* Text-level semantics
    ========================================================================== */
 
 /**
