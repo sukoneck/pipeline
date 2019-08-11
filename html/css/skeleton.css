@@ -160,8 +160,10 @@ p {
 a {
   color: #1EAEDB; }
 a:hover {
-  color: #0FA0CE; }
-
+  color: #0FA0CE; 
+  background-color: AliceBlue;
+  text-decoration-line: none;
+}
 
 /* Buttons
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
