@@ -1,6 +1,6 @@
 ### [Pipeline Proof of Concept](https://project.sukoneck.com)
 
-This is the website and Dockerfile used for my pipeline proof of concept project. Resources that were used to help create this code are: 
+This is the website and Dockerfile used for my continuous delivery pipeline proof of concept project. Resources that were used to help create this code are: 
 
 1. Dockerfile template from [Prakhar Srivastav](https://github.com/prakhar1989/docker-curriculum)
 
