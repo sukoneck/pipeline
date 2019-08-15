@@ -43,23 +43,29 @@
         The combination of these goals challenged me to better understand the services and to seek out creative solutions.    
         </p> 
       <p><strong><h5>Infrastructure Components</h5></strong>
-        <i>Content in-progress</i>
-        This (mostly) HTML website is being served from a docker container running Nginx. The container is hosted in Azure App Service
+        This website is being served from a docker container running Nginx. Templates are listed in the references below.
+
+        The repository for the code to build this website image is <a href="https://github.com/sukoneck/staticsite" target="_blank">GitHub</a>. 
+
+        The repository for this container image is <a href="https://hub.docker.com/r/sukoneck/staticsite" target="_blank">Docker Hub</a>. 
         
-        I'm always curious how organizations decide between AWS, Azure, and GCP, so in good spirit, this is why I chose Azure:
-        I knew I wanted to serve the webside from a container and Microsoft offers a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/app-service/linux/" target="_blank">App Service</a>. They also offer a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/devops/azure-devops-services/" target="_blank">Azure DevOps</a>. The free tiers also seemed like they had workable <a href="https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits#app-service-limits" target="_blank">constraints</a>. AWS has an equivalent service called <a href="https://aws.amazon.com/fargate/" target="_blank">Fargate</a>; however, AWS' "free tier" has a different model than Microsoft's that only lasts for a year and that felt like it would be cheating on goal #2. I also know how quickly a year really passes. GCP recently announced <a href="https://cloud.google.com/run/" target="_blank">Cloud Run</a> which has a <a href="https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits" target="_blank">always free tier</a> similar to Microsoft's; however, if I went with Cloud Run, then I'd need to source my pipeline tool serperately. So, to keep costs actually at zero and to take advantage of the same-provider <strong>synergy</strong> I chose Azure.  
-           
+        The container is hosted in Azure App Service. One of the constraints of the free tier of Azure App Service is that you are unable to use the <a href="https://docs.microsoft.com/en-us/azure/app-service/configure-common#configure-general-settings" target="_blank">Always On</a> feature. Since App Service is a PaaS service that's always trying to perform at peak, if an app goes unused then when it has to go through a cold start when it is used again. The Always On feature keeps the application running by sending http requests to it every 5 minutes or so. For me, the cold start took about 30 seconds, but that's not cool at all. So I followed Ben Chartrand's <a href="https://liftcodeplay.com/2017/12/19/strategies-for-improving-eliminating-azure-functions-cold-starts/" target="_blank">recommendation</a> and set up an Application Insights availability test, which was also <a href="https://azure.microsoft.com/en-us/pricing/details/monitor/" target="_blank">free</a>. The traffic from the availability test is enough to keep the app running and prevent that painful cold start. 
+        
+        I love hearing the rationale for cloud hosting vendor selection, so for those like me I'll explain. I knew I wanted to serve the website from a container and Microsoft offers a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/app-service/linux/" target="_blank">App Service</a>. They also offer a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/devops/azure-devops-services/" target="_blank">Azure DevOps</a>. The free tiers also seemed like they had workable <a href="https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits#app-service-limits" target="_blank">constraints</a>. AWS has an equivalent service called <a href="https://aws.amazon.com/fargate/" target="_blank">Fargate</a>; however, AWS' "free tier" has a different model than Microsoft's that only lasts for a year and that felt like it would be cheating on goal #2. I also know how quickly a year really passes. GCP recently announced <a href="https://cloud.google.com/run/" target="_blank">Cloud Run</a> which has a <a href="https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits" target="_blank">always free tier</a> similar to Microsoft's; however, Cloud Run is still in BETA and I would still need to use Azure DevOps. So, to keep costs actually at zero and to take advantage of that sweet ecosystem <strong>synergy</strong>, I chose Azure. 
+
         </p>
       <p><strong><h5>Workflow</h5></strong>
         <i>Content in-progress</i></p>
-    
+        
+        Noticed new pull from repo when container did cold start so tried restart. 
+
       <p><strong><h5>Feature Requests</h5></strong>
         The project accomplished both goals, but there's always room for Continuous Improvement. Some ideas for next time:  
         <ol>
+          <li>Move container hosting to GCP Cloud Run</li>
           <li>Solve custom domain issue and more fully utilize Cloudflare features</li>
           <li>Include automated tests</li>
           <li>Develop new site features that require multiple container services (e.g. Docker Compose)</li>
-          <li>Move container hosting to GCP Cloud Run</li>
           <li>Incorporate a database in the pipeline</li>
         </ol>
         </p>
