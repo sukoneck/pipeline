@@ -33,12 +33,26 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <div class="container">
     <div class="row" style="margin-top: 10%">
-      <h3>Continuous Delivery Pipeline Proof of Concept</h3>
+      <h3>CI/CD Pipeline Proof of Concept</h3>
       <p><strong><h5>Overview</h5></strong>
-        This website is being served from a <strong>docker</strong> container running Nginx.</p>
+        This website describes the unseen infrastructure and automation that continously takes some lines of code and turns it into a working product. This project had two goals:
+        <ol>
+          <li>Get hands-on experience with some really cool enterprise-grade technologies</li>
+          <li>Be entirely cost-free</li> 
+        </ol>
+        The combination of these goals challenged me to better understand the services and to seek out creative solutions.    
+        </p> 
+      <p><strong><h5>Infrastructure Components</h5></strong>
+        <i>Content in-progress</i>
+        This (mostly) HTML website is being served from a docker container running Nginx. The container is hosted 
+        
+        I'm always curious how organizations decide between AWS, Azure, and GCP, so in good spirit, this is why I chose Azure:
+        I knew I wanted to serve the webside from a container and Microsoft offers a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/app-service/linux/" target="_blank">App Service</a>. They also offer a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/devops/azure-devops-services/" target="_blank">Azure DevOps</a>. The free tiers also seemed like they had workable <a href="https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits#app-service-limits" target="_blank">constraints</a>. AWS has an equivalent service called <a href="https://aws.amazon.com/fargate/" target="_blank">Fargate</a>; however, AWS' "free tier" has a different model than Microsoft's that only lasts for a year and that felt like it would be cheating on goal #2. I also know how quickly a year really passes. GCP recently announced <a href="https://cloud.google.com/run/" target="_blank">Cloud Run</a> which has a <a href="https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits" target="_blank">always free tier</a> similar to Microsoft's; however, if I went with Cloud Run, then I'd need to source my pipeline tool serperately. So, to keep costs actually at zero and to take advantage of the same-provider <strong>synergy</strong> I chose Azure.  
+        
+        
+        The container is hosted in an Azure App Service.   
+        </p>
       <p><strong><h5>Workflow</h5></strong>
-        <i>Content in-progress</i></p>
-      <p><strong><h5>Infrastructure</h5></strong>
         <i>Content in-progress</i></p>
       <p><strong><h5>References</h5></strong>
         <ol>
@@ -51,7 +65,7 @@
     </div>
   </div>
 
-<!-- End Document
+<!-- End Document <a href="" target="_blank"></a>
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 </html>
