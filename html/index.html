@@ -36,44 +36,45 @@
       <h3>CI/CD Pipeline Proof of Concept</h3>
   <!-- OVERVIEW -->
       <p><strong><h5>Overview</h5></strong>
-        This website describes the unseen infrastructure and automation that continously takes some lines of code and turns it into a working product. This project had two goals: <br>
+        This website describes the unseen infrastructure and automation that continously takes some lines of code and turns it into a working product. This project had two goals: <br><br>
         <ol>
           <li>Get hands-on experience with some really cool enterprise-grade technologies</li>
           <li>Be entirely cost-free</li> 
         </ol>
-        The combination of these goals challenged me to better understand the services and to seek out creative solutions. To find out more about me, check out <a href="https://resume.sukoneck.com" target="_blank">resume.sukoneck.com</a>.
-        </p> 
+        The combination of these goals challenged me to better understand the services and to seek out creative solutions. To find out more about me check out <a href="https://resume.sukoneck.com" target="_blank">resume.sukoneck.com</a>.
+      </p> 
   <!-- INFRA -->
       <p><strong><h5>Infrastructure Components</h5></strong>
         This website is being served from a docker container running Nginx. There are templates listed in the references section below. I modified the Dockerfile and removed the wrapper.sh content based on <a href="https://stackoverflow.com/questions/18861300/how-to-run-nginx-within-a-docker-container-without-halting" target="_blank">these findings</a>.
-        <br>
+        <br><br>
         The repository for the code to build this website image is <a href="https://github.com/sukoneck/staticsite" target="_blank">GitHub</a>. 
-        <br>
+        <br><br>
         The repository for this container image is <a href="https://hub.docker.com/r/sukoneck/staticsite" target="_blank">Docker Hub</a>. 
-        <br>
+        <br><br>
         The container is hosted in Azure App Service. One of the constraints of the free tier of Azure App Service is that you are unable to use the <a href="https://docs.microsoft.com/en-us/azure/app-service/configure-common#configure-general-settings" target="_blank">Always On</a> feature. If the app goes unused for ~5 minutes, then it is turned off and has to go through a cold start when it is used again. The Always On feature keeps the application running by sending http requests to it every 5 minutes or so. For me, the cold start took about 30 seconds, which wasn't actually cool at all. So, I followed Ben Chartrand's <a href="https://liftcodeplay.com/2017/12/19/strategies-for-improving-eliminating-azure-functions-cold-starts/" target="_blank">recommendation</a> and set up an Application Insights availability test, which was also <a href="https://azure.microsoft.com/en-us/pricing/details/monitor/" target="_blank">free</a>. The traffic from the availability test is enough to keep the app running and prevent that painful cold start. 
-        <br>
+        <br><br>
         Another sweet App Service feature is forcing HTTPS. 
-        <br>
+        <br><br>
         I love hearing the rationale for cloud hosting vendor selections, so for those like me, I'll explain. I knew I wanted to serve the website from a container and Microsoft offers a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/app-service/linux/" target="_blank">App Service</a>. They also offer a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/devops/azure-devops-services/" target="_blank">Azure DevOps</a>. The free tiers also seemed like they had workable <a href="https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits#app-service-limits" target="_blank">constraints</a>. AWS has an equivalent service called <a href="https://aws.amazon.com/fargate/" target="_blank">Fargate</a>; however, AWS' "free tier" has a different model than Microsoft's that only lasts for a year and that felt like it would be cheating on goal #2. I also know how quickly a year really passes. GCP recently announced <a href="https://cloud.google.com/run/" target="_blank">Cloud Run</a> which has a <a href="https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits" target="_blank">always free tier</a> similar to Microsoft's; however, Cloud Run is still in BETA and I would still need to use Azure DevOps. So, to keep costs actually at zero and to take advantage of that sweet ecosystem <strong>synergy</strong>, I chose Azure. 
-        <br>
+        <br><br>
         There were really only two contenders for pipeline tool, Jenkins and Azure DevOps. I went with Azure DevOps because it's PaaS and also comes with Azure Boards, whereas Jenkins would require managing a host server and adding something like Jira or Trello. 
-        <br>
+        <br><br>
         This project was a great opportunity to experiment with Cloudflare, who are <a href="https://blog.cloudflare.com/project-galileo-fifth-anniversary/" target="_blank">awesome</a> people. I started by migrating the nameservers for <code>sukoneck.com</code> from Namecheap to Cloudflare. This was done with a heavy heart, because I'm a huge Namecheap fan. Fortunately, I've got plenty of goofy domains with Namecheap to play with. With DNS now hosted in Cloudflare, I set to work creating a CNAME, but quickly realized that wasn't going to work. I had forgotten that you have to add a custom domain to your Azure App Service to be able to use a CNAME record. You can see what I saw by navigating to this CNAME record <a href="https://CNAMEexample.sukoneck.com" target="_blank">CNAMEexample.sukoneck.com</a>. 
-        <br>
+        <br><br>
         Here's the real bad news: the custom domain feature of Azure App Service <a href="https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain#prepare-the-app" target="_blank">is not free</a>. So, I am stuck with the <code>azurewebsites.net</code> domain to keep everything free. Ok, fine, keep moving. With Namecheap I had set up a ton of URL redirect records for convenience sake, it was as simple and free as creating any other DNS record, so I decided that would be a close-enough solution for now. Cloudflare approaches URL redirects much differently. So, I followed Dom J H's <a href="https://community.cloudflare.com/t/using-page-rules-to-perform-redirects/55386" target="_blank">guidance</a> by creating a dummy A record to trigger Cloudflare's DNS and then created a Page Rule to do the permanent redirection from <a href="https://pipeline.sukoneck.com" target="_blank">pipeline.sukoneck.com</a> to the <code>azurewebsites.net</code> URL. Page Rules offer powerful features like path-based routing, but as a result, you only get three free Page Rules. On the brightside, I was still able to take advantage of Cloudflare's <a href="https://support.cloudflare.com/hc/en-us/articles/200168326-Are-301-and-302-redirects-cached-by-Cloudflare-" target="_blank">cache</a> service which was caching 72% of content even during site development.
         <br>
-        </p>
+      </p>
   <!-- WORKFLOW -->
       <p><strong><h5>Workflow</h5></strong>        
         Noticed new pull from repo when container did cold start so tried restart. 
-        <br>
+        <br><br>
         Noticed pushes to non-master branches were triggering the pipeline so filtered out.
         <br>
-        </p>
+      </p>
   <!-- BACKLOG -->
       <p><strong><h5>Backlog</h5></strong>
         The project accomplished both goals, but there's always room for Continuous Improvement. This is what my Azure Boards backlog looks like:  
+        <br><br>
         <ol>
           <li>Solve custom domain issue and more fully utilize Cloudflare features</li>
           <li>Move container hosting to GCP Cloud Run</li>
@@ -81,14 +82,16 @@
           <li>Develop new site features that require multiple container services (e.g. Docker Compose)</li>
           <li>Incorporate a database in the pipeline</li>
         </ol>
-        </p>
+        <br>
+      </p>
   <!-- REFERENCES -->
-        <p><strong><h5>References</h5></strong>
+      <p><strong><h5>References</h5></strong>
         <ol>
           <li>Dockerfile template from <a href="https://github.com/prakhar1989/docker-curriculum" target="_blank">Prakhar Srivastav</a></li>
           <li>CSS template from <a href="https://github.com/dhg/Skeleton" target="_blank">Dave Gamache</a></li>
           <li>Favicon by <a href="https://www.flaticon.com/authors/smashicons" target="_blank">Smash Icons</a> from <a href="https://www.flaticon.com" target="_blank">Flaticon</a> is licensed by <a href="https://www.creativecommons.org/licenses/by/3.0" target="_blank">Creative Commons</a></li>
         </ol> 
+        <br><br><br><br>
       </p>
     </div>
   </div>
