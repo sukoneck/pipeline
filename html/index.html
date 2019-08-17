@@ -36,13 +36,33 @@
       <h3>CI/CD Pipeline Proof of Concept</h3>
   <!-- OVERVIEW -->
       <p><strong><h5>Overview</h5></strong>
-        This website describes the unseen infrastructure and automation that continously takes some lines of code and turns it into a working product. This project had two goals: <br><br>
+        This website describes the unseen infrastructure and automation that continously takes some lines of code and turns it into a working product. This project had two goals: 
         <ol>
           <li>Get hands-on experience with some really cool enterprise-grade technologies</li>
           <li>Be entirely cost-free</li> 
         </ol>
-        The combination of these goals challenged me to better understand the services and to seek out creative solutions. To find out more about me check out <a href="https://resume.sukoneck.com" target="_blank">resume.sukoneck.com</a>.
+        These goals challenged me to better understand the services and to seek out creative solutions. To find out more about me check out <a href="https://resume.sukoneck.com" target="_blank">resume.sukoneck.com</a>.
       </p> 
+  <!-- WORKFLOW -->
+      <p><strong><h5>Workflow</h5></strong>        
+        Whenever the source is modified the pipeline will automatically build, publish, and deploy a containerized website:  
+        <ol>
+          <li>The master branch of the code repository is modified</li>
+          <li>The modification triggers the pipeline</li> 
+          <li>The pipeline clones the code repository and builds a container image from it</li>
+          <li>The pipeline pushes the container image to the image repository with the <code>latest</code> tag</li> 
+          <li>The pipeline tells the container host service to restart the application</li>
+          <li>The container host service pulls a fresh copy of the <code>latest</code> image from the image repository</li>
+          <li>The container host service serves the <code>latest</code> container</li>
+          <li>The DNS and edge cache provider redirects users when they navigate to <a href="https://pipeline.sukoneck.com" target="_blank">pipeline.sukoneck.com</a></li> 
+        </ol>
+        Noticed new pull from repo when container did cold start so tried restart. 
+        <br><br>
+        Noticed Docker Hub automated builds took minutes.
+        <br><br>
+        Noticed pushes to non-master branches were triggering the pipeline so filtered out.
+        <br>
+      </p>
   <!-- INFRA -->
       <p><strong><h5>Infrastructure Components</h5></strong>
         This website is being served from a docker container running Nginx. There are templates listed in the references section below. I modified the Dockerfile and removed the wrapper.sh content based on <a href="https://stackoverflow.com/questions/18861300/how-to-run-nginx-within-a-docker-container-without-halting" target="_blank">these findings</a>.
@@ -53,30 +73,20 @@
         <br><br>
         The container is hosted in Azure App Service. One of the constraints of the free tier of Azure App Service is that you are unable to use the <a href="https://docs.microsoft.com/en-us/azure/app-service/configure-common#configure-general-settings" target="_blank">Always On</a> feature. If the app goes unused for ~5 minutes, then it is turned off and has to go through a cold start when it is used again. The Always On feature keeps the application running by sending http requests to it every 5 minutes or so. For me, the cold start took about 30 seconds, which wasn't actually cool at all. So, I followed Ben Chartrand's <a href="https://liftcodeplay.com/2017/12/19/strategies-for-improving-eliminating-azure-functions-cold-starts/" target="_blank">recommendation</a> and set up an Application Insights availability test, which was also <a href="https://azure.microsoft.com/en-us/pricing/details/monitor/" target="_blank">free</a>. The traffic from the availability test is enough to keep the app running and prevent that painful cold start. 
         <br><br>
-        Another sweet App Service feature is forcing HTTPS. 
+        One feature that is included in the free App Service is the ability to force HTTPS. This is common practice, but the ability to "<a href="https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-ssl#enforce-https" target="_blank">flip a switch</a>" to have HTTP traffic redirected is convenient. 
         <br><br>
-        I love hearing the rationale for cloud hosting vendor selections, so for those like me, I'll explain. I knew I wanted to serve the website from a container and Microsoft offers a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/app-service/linux/" target="_blank">App Service</a>. They also offer a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/devops/azure-devops-services/" target="_blank">Azure DevOps</a>. The free tiers also seemed like they had workable <a href="https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits#app-service-limits" target="_blank">constraints</a>. AWS has an equivalent service called <a href="https://aws.amazon.com/fargate/" target="_blank">Fargate</a>; however, AWS' "free tier" has a different model than Microsoft's that only lasts for a year and that felt like it would be cheating on goal #2. I also know how quickly a year really passes. GCP recently announced <a href="https://cloud.google.com/run/" target="_blank">Cloud Run</a> which has a <a href="https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits" target="_blank">always free tier</a> similar to Microsoft's; however, Cloud Run is still in BETA and I would still need to use Azure DevOps. So, to keep costs actually at zero and to take advantage of that sweet ecosystem <strong>synergy</strong>, I chose Azure. 
+        I love hearing about how people choose between AWS, Azure, and GCP, so for those like me, I'll explain why I chose Azure. I knew I wanted to serve the website from a container and Microsoft offers a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/app-service/linux/" target="_blank">App Service</a>. They also offer a free tier for <a href="https://azure.microsoft.com/en-us/pricing/details/devops/azure-devops-services/" target="_blank">Azure DevOps</a>. The free tiers also seemed like they had workable <a href="https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits#app-service-limits" target="_blank">constraints</a>. AWS has an equivalent service called <a href="https://aws.amazon.com/fargate/" target="_blank">Fargate</a>; however, AWS' "free tier" has a different model than Microsoft's that only lasts for a year and that felt like it would be cheating on goal #2. I also know how quickly a year really passes. GCP recently announced <a href="https://cloud.google.com/run/" target="_blank">Cloud Run</a> which has an <a href="https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits" target="_blank">always free tier</a> similar to Microsoft's; however, Cloud Run is still in BETA and I would still need to use Azure DevOps. So, to keep costs actually at zero and to take advantage of that sweet ecosystem <strong>synergy</strong>, I chose Azure. That said, it's on my backlog to move over to Cloud Run later on.
         <br><br>
         There were really only two contenders for pipeline tool, Jenkins and Azure DevOps. I went with Azure DevOps because it's PaaS and also comes with Azure Boards, whereas Jenkins would require managing a host server and adding something like Jira or Trello. 
         <br><br>
-        This project was a great opportunity to experiment with Cloudflare, who are <a href="https://blog.cloudflare.com/project-galileo-fifth-anniversary/" target="_blank">awesome</a> people. I started by migrating the nameservers for <code>sukoneck.com</code> from Namecheap to Cloudflare. This was done with a heavy heart, because I'm a huge Namecheap fan. Fortunately, I've got plenty of goofy domains with Namecheap to play with. With DNS now hosted in Cloudflare, I set to work creating a CNAME, but quickly realized that wasn't going to work. I had forgotten that you have to add a custom domain to your Azure App Service to be able to use a CNAME record. You can see what I saw at <a href="https://CNAMEexample.sukoneck.com" target="_blank">CNAMEexample.sukoneck.com</a>. 
+        This project was a great opportunity to experiment with Cloudflare, which seems like an <a href="https://blog.cloudflare.com/project-galileo-fifth-anniversary/" target="_blank">awesome</a> company. I started by migrating the nameservers for <code>sukoneck.com</code> from Namecheap to Cloudflare. This was done with a heavy heart, because I'm a huge Namecheap fan. Fortunately, I've got plenty of goofy domains with Namecheap to play with. With DNS now hosted in Cloudflare, I created a CNAME record, but quickly realized that wasn't going to work. I had forgotten that you have to add a custom domain to your Azure App Service to be able to use a CNAME record. You can see the custom domain error that I saw at <a href="https://CNAMEexample.sukoneck.com" target="_blank">cnameexample.sukoneck.com</a>. 
         <br><br>
-        Here's the real bad news: the custom domain feature of Azure App Service <a href="https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain#prepare-the-app" target="_blank">is not free</a>. So, I am stuck with the <code>azurewebsites.net</code> domain to keep everything free. Ok, fine, keep moving. With Namecheap I had set up a ton of URL redirect records for convenience sake, it was as simple and free as creating any other DNS record, so I decided that would be a close-enough solution for now. Cloudflare approaches URL redirects much differently. So, I followed Dom J H's <a href="https://community.cloudflare.com/t/using-page-rules-to-perform-redirects/55386" target="_blank">guidance</a> by creating a dummy A record to trigger Cloudflare's DNS and then created a Page Rule to do the permanent redirection from <a href="https://pipeline.sukoneck.com" target="_blank">pipeline.sukoneck.com</a> to the <code>azurewebsites.net</code> URL. Page Rules offer powerful features like path-based routing, but as a result, you only get three free Page Rules. On the brightside, I was still able to take advantage of Cloudflare's <a href="https://support.cloudflare.com/hc/en-us/articles/200168326-Are-301-and-302-redirects-cached-by-Cloudflare-" target="_blank">cache</a> service which was caching 72% of content even during site development.
-        <br>
-      </p>
-  <!-- WORKFLOW -->
-      <p><strong><h5>Workflow</h5></strong>        
-        Noticed new pull from repo when container did cold start so tried restart. 
-        <br><br>
-        Noticed Docker Hub automated builds took minutes.
-        <br><br>
-        Noticed pushes to non-master branches were triggering the pipeline so filtered out.
+        The bad news: the custom domain feature of Azure App Service <a href="https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain#prepare-the-app" target="_blank">is not free</a>. So, I am stuck with the <code>azurewebsites.net</code> domain to keep everything free. Ok, fine, keep moving. With Namecheap I had set up a ton of URL redirect records for convenience sake, it was as <strong>simple and free</strong> as creating any other DNS record, so I decided that would be a enough of a minimally viable solution for now. Cloudflare approaches URL redirects much differently. I followed Dom J H's <a href="https://community.cloudflare.com/t/using-page-rules-to-perform-redirects/55386" target="_blank">guidance</a> by creating a dummy A record to trigger Cloudflare's DNS and then created a Page Rule to do the permanent redirection from <a href="https://pipeline.sukoneck.com" target="_blank">pipeline.sukoneck.com</a> to the <code>azurewebsites.net</code> URL. Page Rules offer powerful features like path-based routing, but as a result, you only get three free Page Rules. On the brightside, I was still able to take advantage of Cloudflare's <a href="https://support.cloudflare.com/hc/en-us/articles/200168326-Are-301-and-302-redirects-cached-by-Cloudflare-" target="_blank">cache</a> service which was caching 72% of content even during site development.
         <br>
       </p>
   <!-- BACKLOG -->
       <p><strong><h5>Backlog</h5></strong>
         The project accomplished both goals, but there's always room for Continuous Improvement. This is what my Azure Boards backlog looks like:  
-        <br><br>
         <ol>
           <li>Solve custom domain issue and more fully utilize Cloudflare features</li>
           <li>Move container hosting to GCP Cloud Run</li>
