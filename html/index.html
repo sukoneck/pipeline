@@ -58,9 +58,9 @@
             <li>The DNS and edge cache provider redirects users when they navigate to <a href="https://pipeline.sukoneck.com" target="_blank">pipeline.sukoneck.com</a></li> 
           </ol>
         <h5>Revisions</h5>
-          After the pipeline was up and running I noticed some interesting things: 
+          After the pipeline was up and running I optimized for some interesting things: 
           <ul>
-            <li>While doing website development I noticed that when I pushed commits to non-master branches the pipeline was still being triggered, but it is an easy change to filter on a specific branch.</li>
+            <li>While doing website development I noticed that when I pushed commits to non-master branches the pipeline was still being triggered, but it is an easy change to filter triggers to a specific branch.</li>
             <li>The first iteration of the pipeline used a Docker Hub feature called Automated Builds to build the container image and push it to the image repository. The Automated Build was similarly triggered from by modification to the code repository. The feature is free and convenient; however, the build took two to three minutes. Now, when the pipeline tool executes the build task, it only takes 20 seconds.</li> 
             <li>Normally, new code would be pushed to the host service but as I was watching logs from the hosting service, while troubleshooting an issue with cold starts, I noticed that a new container was pulled from the image repository during the start-up process. So rather than have the pipeline spend time pulling and pushing new code, I simply had it tell the hosting service to restart.</li>
           </ul>
@@ -68,14 +68,12 @@
   <!-- INFRA -->
       <p><strong><h4>Infrastructure Components</h4></strong>
         <h5>Website</h5>
-          This website is being served from a docker container running Nginx. There are templates listed in the references section below. I modified the Dockerfile and removed the wrapper.sh content based on <a href="https://stackoverflow.com/questions/18861300/how-to-run-nginx-within-a-docker-container-without-halting" target="_blank">these findings</a>.
+          This website is being served from a docker container running Nginx. There are templates listed in the references section below. I modified the Dockerfile and removed the wrapper.sh content from the template based on what I learned <a href="https://stackoverflow.com/questions/18861300/how-to-run-nginx-within-a-docker-container-without-halting" target="_blank">here</a>.
           <br><br>
         <h5>Repositories</h5>
-          The repository for the code to build this website image is <a href="https://github.com/sukoneck/staticsite" target="_blank">GitHub</a>. 
+          The repository for the code to build this website image is <a href="https://github.com/sukoneck/staticsite" target="_blank">GitHub</a>. The repository for this container image is <a href="https://hub.docker.com/r/sukoneck/staticsite" target="_blank">Docker Hub</a>. 
           <br><br>
-          The repository for this container image is <a href="https://hub.docker.com/r/sukoneck/staticsite" target="_blank">Docker Hub</a>. 
-          <br><br>
-        <h5>Container Host</h5>
+        <h5>Hosting Service</h5>
           The container is hosted in Azure App Service. One of the constraints of the free tier of Azure App Service is that you are unable to use the <a href="https://docs.microsoft.com/en-us/azure/app-service/configure-common#configure-general-settings" target="_blank">Always On</a> feature. If the app goes unused for ~5 minutes, then it is turned off and has to go through a cold start when it is used again. The Always On feature keeps the application running by sending http requests to it every 5 minutes or so. For me, the cold start took about 30 seconds, which wasn't actually cool at all. So, I followed Ben Chartrand's <a href="https://liftcodeplay.com/2017/12/19/strategies-for-improving-eliminating-azure-functions-cold-starts/" target="_blank">recommendation</a> and set up an Application Insights availability test, which was also <a href="https://azure.microsoft.com/en-us/pricing/details/monitor/" target="_blank">free</a>. The traffic from the availability test is enough to keep the app running and prevent that painful cold start. 
           <br><br>
           One feature that is included in the free App Service is the ability to force HTTPS. This is common practice, but the ability to "<a href="https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-ssl#enforce-https" target="_blank">flip a switch</a>" to have HTTP traffic redirected is convenient. 
