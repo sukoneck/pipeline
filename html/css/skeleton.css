@@ -336,6 +336,8 @@ button,
 .button {
   margin-bottom: 1rem; }
 p,
+ul,
+ol,
 input,
 textarea,
 select,
@@ -346,8 +348,6 @@ blockquote,
 dl,
 figure,
 table,
-ul,
-ol,
 form {
   margin-bottom: 2.5rem; }
 
